@@ -1,6 +1,6 @@
 # 📊 Data Acquisition and Pre-processing Guide
 
-Due to GitHub's file size limitations ($>100\text{ MB}$), this repository does not embed the massive, fully compiled raw Multi-Regional Input-Output (MRIO) datasets. 
+Due to GitHub's file size limitations (`>100 MB`), this repository does not embed the massive, fully compiled raw Multi-Regional Input-Output (MRIO) datasets. 
 
 Instead, we provide an automated, one-click preprocessing pipeline (`data_preprocessing.m`) that converts official source tables into the precise `.mat` tensor configurations required by the **CLUES-ABM** engine.
 
