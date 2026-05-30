@@ -84,6 +84,7 @@ When you run the standalone workflow above, the core matrix engine dynamically t
 
 Below is the verified timeline response capturing the system's macroeconomic output fluctuations under targeted regional capacity shocks:
 
+
 <p align="center">
   <img src="docs/example_1_plot.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
   <br>
