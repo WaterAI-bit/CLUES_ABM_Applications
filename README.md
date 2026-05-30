@@ -1,4 +1,4 @@
-# CLUES-ABM Applications: Empirical Case Studies & Scenarios
+# CLUES-ABM Applications: Empirical Case Studies
 
 ## 1. Overview
 
@@ -14,7 +14,7 @@ The repository is split into two mirror-structured environments. Because the emp
 
 ### 🐍 Python Application Pipeline
 
-* **Directory Root**: `python/`
+* **Directory Root**: [`python/`](./python/)
 * **Core Scripts**: Contains `example_1_ResourceConstraints.py`, `example_2_ReductionInProductionCapacity.py`, and `example_3_BlockageOffTransportationChain.py`.
 * **Data Layer Setup**: 
   All operational Excel manifests belong in `python/data/`.
@@ -28,7 +28,7 @@ The repository is split into two mirror-structured environments. Because the emp
 
 ### 🎛️ MATLAB Application Pipeline
 
-* **Directory Root**: `matlab/`
+* **Directory Root**: [`matlab/`](./matlab/)
 * **Core Scripts**: Contains `example_1_ResourceConstraints.m`, `example_2_ReductionInProductionCapacity.m`, , and `example_3_BlockageOffTransportationChain.m`.
 * **Data Layer Setup**: 
   All operational Excel manifests belong in  `matlab/data/`.
