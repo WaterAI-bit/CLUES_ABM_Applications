@@ -56,9 +56,9 @@ model.MRIO_IP = MRIOdata["MRIO_IP"] # Exports.
 model.MRIO_IC = MRIOdata["MRIO_IC"] # Exports.
 
 # Set MRIO_Dist: default 1
-TransportationDays = pd.read_excel("TransportationDays_CountriesInWorld.xlsx",sheet_name="TransportationDays", header=None).values
+TransportationDays = pd.read_excel("data/TransportationDays_CountriesInWorld.xlsx",sheet_name="TransportationDays", header=None).values
 model.MRIO_Dist = TransportationDays - 1
-TransportationLineBlockageData = pd.read_excel("TransportationLineBlockageData.xlsx",sheet_name="TransportationLineBlockageData", header=None).values
+TransportationLineBlockageData = pd.read_excel("data/TransportationLineBlockageData.xlsx",sheet_name="TransportationLineBlockageData", header=None).values
 
 # Length of each time step, as a fraction of input flows.
 model.delta_t = delta_t
@@ -128,7 +128,6 @@ for day in range(1,day_total+1):
     #   k[3]   : Start day of the blockage (Row 4)
     #   k[4]   : End day of the blockage (Row 5)
     #   k[5+i] : Value of delayed goods in the first 11 EORA cargo sectors (Rows 6-16, Unit: 1000 $)
-
     for k in TransportationLineBlockageData.T:
         if day >= k[3] and day <= k[4]:
             for i in range(11):

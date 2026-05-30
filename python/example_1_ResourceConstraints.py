@@ -213,7 +213,7 @@ S0_ProductInNetwork_Region_Change_Mean = np.mean(S0_ProductInNetwork_Region_Chan
 
 
 # ======================= Save results =======================
-np.savez("output/TestResults_ResourceConstraintsExample1.npz",
+np.savez("TestResults_ResourceConstraintsExample1.npz",
     S0_Evolution_ValueAdded_ProductionAgents = S0_Evolution_ValueAdded_ProductionAgents,
     S0_Evolution_ValueAdded_Region = S0_Evolution_ValueAdded_Region,
     S0_ProductInNetwork_Region = S0_ProductInNetwork_Region,
