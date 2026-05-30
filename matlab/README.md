@@ -1,29 +1,20 @@
-# CLUES-ABM Applications (Python/MATLAB)
+# CLUES-ABM Applications (MATLAB version)
 
-## 1. Overview
+## 1. Environment Prerequisites & Dataset Setup
 
-**CLUES-ABM** is a high-performance computational framework designed to simulate the short-term cascading impacts of abrupt external shocks on socio-economic-environmental systems. Built upon high-frequency, multi-regional input-output (MRIO) tensor alignments, the model endogenously captures the spatial-temporal dynamic adaptation, inventory buffering, and market-share reallocation behaviors of heterogeneous production, consumption, and transportation agents.
-
-This repository houses the standalone **MATLAB core engine**, optimized for discrete-event simulation, automated micro-behavioral feedback loops, and large-scale parallel tensor matrix operations.
-
-
----
-
-## 2. Environment Prerequisites & Dataset Setup
-
-### 2.1 Prerequisites
+### 1.1 Prerequisites
 * **MATLAB** ($\ge$ R2020a recommended).
 * **Parallel Computing Toolbox** (Required if deploying on GPU matrix layers for city-level or global scales).
 * **No external software wrappers** (e.g., Python) are required for the main simulation pipeline.
 
-### 2.2 Crucial: Dataset Preparation 🚨
+### 1.2 Crucial: Dataset Preparation 🚨
 Because the raw City-level and Global MRIO tables exceed GitHub's hosting size limits ($>500\text{ MB}$), users must download the raw source tables independently from official providers (such as CEADs and Eora) and execute our automated preprocessing compiler.
 
 **Please pivot to the [data/ Subdirectory Guide](data/README.md) for step-by-step download instructions and to execute the `data_preprocessing.m` script.** Once compiled, the optimized `.mat` tensor configurations will be instantly ready for scenario testing.
 
 ---
 
-## 3. Core Simulation Templates (Three Empirical Cases)
+## 2. Core Simulation Templates (Three Empirical Cases)
 
 The CLUES-ABM architecture decouples the core macroeconomic engine from specific policy scenario modules, offering three standardized templates to evaluate distinct structural risk propagation pathways:
 
@@ -44,7 +35,7 @@ The CLUES-ABM architecture decouples the core macroeconomic engine from specific
 
 ---
 
-## 4. Quick Start & Execution Workflow
+## 3. Quick Start & Execution Workflow
 
 Once the benchmarking data matrices are ready in the `data/` folder, you can verify the execution pipeline by running our canonical multi-stage scenario script:
 
@@ -55,8 +46,31 @@ run('example_2_ReductionInProductionCapacity.m')
 run('example_3_BlockageOffTransportationChain.m')
 ```
 
+## 4. Expected Simulation Results
 
+When you run the standalone workflow above, the core matrix engine dynamically tracks the multi-regional spatiotemporal cascading losses. The compiled metrics and topological network resilience curves are automatically rendered and archived into the `output/` directory as `example_1_plot.png`, `example_2_plot.png`, and `example_3_plot.png`.
 
+Below is the verified timeline response capturing the system's macroeconomic output fluctuations under targeted regional capacity shocks:
+
+<p align="center">
+  <img src="output/`example_1_plot.png`.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <br>
+  <em>Figure: Value-added recovery and resilience trajectory under Example 1: Resource constraints.</em>
+</p>
+
+<p align="center">
+  <img src="output/`example_2_plot.png`.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <br>
+  <em>Figure: Value-added recovery and resilience trajectory under Example 2: Production capacity reduction.</em>
+</p>
+
+<p align="center">
+  <img src="output/`example_3_plot.png`.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <br>
+  <em>Figure: Value-added recovery and resilience trajectory under Example 3: Transportation blockage.</em>
+</p>
+
+> 💡 **User Note:** Since GitHub natively renders relative paths within repositories, as long as `result.png` exists in your locally committed or pushed `output/` folder, the chart above will display beautifully and flawlessly right on your repository's homepage.
 
 
 
