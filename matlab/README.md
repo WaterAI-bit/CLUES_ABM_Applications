@@ -20,7 +20,9 @@ The CLUES-ABM architecture decouples the core macroeconomic engine from specific
 
 ### 💧 Case 1: Multi-Element Resource Constraints (`example_1_ResourceConstraints.m`)
 * **Mechanism**: Models localized resource supply bottlenecks (e.g., rigid water quotas or energy dual-control thresholds). It dynamically scales the `model.ResourceConstraints` vector for targeted regions at designated time steps. Downstream agents face input shocks when regional consumption hits resource intensity (`AgentsP_ResourceIntensity`) ceilings.
+
 * **Configuration**: Leverages the City-Level MRIO 2017 dataset ($\delta_t = 1/52$, `day_total = 52` weeks).
+
 * **Execution**: Injecting a water scarcity constraint into specific region nodes at Day 1 while keeping baseline periods abundant.
 
 ### ⚙️ Case 2: Industrial Capacity Reduction (`example_2_ReductionInProductionCapacity.m`)
