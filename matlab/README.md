@@ -16,90 +16,13 @@ Because the raw City-level and Global MRIO tables exceed GitHub's hosting size l
 
 ## 2. Core Simulation Templates (Three Empirical Cases)
 
-The CLUES-ABM architecture decouples the core macroeconomic engine from specific policy scenario modules, offering three standardized templates to evaluate distinct structural risk propagation pathways:
+The CLUES-ABM architecture provides three standardized validation templates to evaluate distinct economic-environmental structural risk propagation channels. 
 
-### 💧 Case 1: Multi-Element Resource Constraints (`example_1_ResourceConstraints.m`)
-* **Mechanism**: 
-  Models localized resource supply bottlenecks (e.g., rigid water quotas or energy dual-control thresholds). It dynamically scales the `model.ResourceConstraints` vector for targeted regions at designated time steps. Downstream agents face input shocks when regional consumption hits resource intensity (`AgentsP_ResourceIntensity`) ceilings.
-* **Configuration**: Leverages the City-Level MRIO 2017 dataset ($\delta_t = 1/52$, `day_total = 52` weeks).
-* **Execution**: Injecting a water scarcity constraint into specific region nodes at Day 1 while keeping baseline periods abundant.
-
-### ⚙️ Case 2: Industrial Capacity Reduction (`example_2_ReductionInProductionCapacity.m`)
-* **Mechanism**: Simulates localized physical asset degradation or policy-driven enterprise temporary shutdowns. By altering the `model.AgentsP_Theta` property (bounded within $[0, 1]$), it restricts maximum production capabilities relative to pre-event benchmarks. Over-shocked agents trigger localized supply shortfalls that cascade through the spatial trade network.
-* **Configuration**: Leverages the Provincial-Level MRIO 2017 dataset and explicit inter-provincial logistics tracking, evaluated across a daily resolution ($\delta_t = 1/365$, `day_total = 365`).
-* **Execution**: Simulates a $40\%$ drop in production capacity (`model.AgentsP_Theta[0] = 0.4`) for the baseline index region from Day 1 to Day 10.
-
-### 🚚 Case 3: Infrastructure & Logistics Blockage (`example_3_BlockageOffTransportationChain.m`)
-* **Mechanism**: Evaluates the systemic exposure of international and domestic trade channels to critical transportation line interruptions (e.g., the Suez Canal obstruction or subnational maritime corridor friction). Rather than mutating input-output structural parameters, it invokes the `model.transport_obstruct_mrio()` routine to lock commodities inside the intermediate transportation lines (`AgentsT_P2P`, `AgentsT_P2C`). Downstream agents rapidly drain their localized safety buffers (`ndays_target_default = 3.5`), triggering massive cascading shortages.
-* **Configuration**: Maps the global closed-economy Eora26 Global MRIO 2016 database ($189$ regions $\times$ $26$ sectors) into an open-economy framework coupled with cross-border logistics metrics (`TransportationDays_CountriesInWorld.xlsx`), simulated across a localized timeline (`day_total = 365`).
-* **Execution**: Loops through a customized schedule matrix (`TransportationLineBlockageData.xlsx`) to programmatically lock trade lanes during specified intervals.
-
-
-
-## 3. Core Simulation Templates (Three Empirical Cases)
-
-The CLUES-ABM architecture provides three standardized validation templates to evaluate distinct economic-environmental structural risk propagation channels.
-
----
-
-### 💧 Case 1: Multi-Element Resource Constraints
-
-* **Core Script / Target**:  
-  `example_1_ResourceConstraints.py`
-
-* **Dynamic Mechanism**:  
-  Models localized resource supply bottlenecks (e.g., rigid water quotas or energy dual-control thresholds). It dynamically scales the `model.ResourceConstraints` vector for targeted regions at designated time steps. Downstream agents face input shocks when regional consumption hits resource intensity (`AgentsP_ResourceIntensity`) ceilings.
-
-* **Model Configuration**:  
-  Leverages the **City-Level MRIO 2017** dataset ($\delta_t = 1/52$, `day_total = 52` weeks).
-
-* **Shock Execution**:  
-  Injecting a severe water scarcity constraint into specific region nodes at Day 1 while keeping baseline periods abundant.
-
----
-
-### ⚙️ Case 2: Industrial Capacity Degradation
-
-* **Core Script / Target**:  
-  `example_2_ReductionInProductionCapacity.py`
-
-* **Dynamic Mechanism**:  
-  Simulates localized physical asset degradation or policy-driven enterprise temporary shutdowns. By altering the `model.AgentsP_Theta` property (bounded within $[0, 1]$), it restricts maximum production capabilities relative to pre-event benchmarks. Over-shocked agents trigger localized supply shortfalls that cascade through the spatial trade network.
-
-* **Model Configuration**:  
-  Leverages the **Provincial-Level MRIO 2017** dataset and explicit inter-provincial logistics tracking (`TransportationDays_ProvincesInChina.xlsx`), evaluated across a daily resolution ($\delta_t = 1/365$, `day_total = 365`).
-
-* **Shock Execution**:  
-  Simulates a $40\%$ drop in production capacity (`model.AgentsP_Theta[0] = 0.4`) for the baseline index region from Day 1 to Day 10.
-
----
-
-### 🚚 Case 3: Infrastructure & Logistics Chokepoint Blockage
-
-* **Core Script / Target**:  
-  `example_3_BlockageOffTransportationChain.py`
-
-* **Dynamic Mechanism**:  
-  Evaluates the systemic exposure of international and domestic trade channels to critical transportation line interruptions (e.g., the Suez Canal obstruction or subnational maritime corridor friction). Rather than mutating input-output structural parameters, it invokes the `model.transport_obstruct_mrio()` routine to lock commodities inside the intermediate transportation lines (`AgentsT_P2P`, `AgentsT_P2C`). Downstream agents rapidly drain their localized safety buffers (`ndays_target_default = 3.5`), triggering massive cascading shortages.
-
-* **Model Configuration**:  
-  Maps the global closed-economy **Eora26 Global MRIO 2016** database ($189$ regions $\times$ $26$ sectors) into an open-economy framework coupled with cross-border logistics metrics (`TransportationDays_CountriesInWorld.xlsx`), simulated across a localized timeline (`day_total = 30`).
-
-* **Shock Execution**:  
-  Loops through a customized schedule matrix (`TransportationLineBlockageData.xlsx`) to programmatically lock trade lanes during specified intervals.
-
----
-
-
-
-
-
-
-
-
-
-
-
+| Case & Scenario | Mechanism | Model Configuration | Execution |
+| :--- | :--- | :--- | :--- |
+| **💧 Case 1: Resource Constraints**<br>`example_1_ResourceConstraints.py` | Models localized resource supply bottlenecks (e.g., rigid water quotas). It dynamically scales the `model.ResourceConstraints` vector. Downstream agents face input shocks when regional consumption hits resource intensity (`AgentsP_ResourceIntensity`) ceilings. | **City-Level MRIO 2017**<br>• Temporal step: $\delta_t = 1/52$<br>• Timeline: `day_total = 52` (weeks) | Injecting a severe water scarcity constraint into target regional nodes at Day 1 while keeping baseline periods abundant. |
+| **⚙️ Case 2: Capacity Degradation**<br>`example_2_ReductionInProductionCapacity.py` | Simulates localized physical asset degradation or policy-driven shutdowns. By altering `model.AgentsP_Theta` $\in [0, 1]$, it restricts maximum production capabilities. Over-shocked agents trigger localized supply shortfalls cascading through the trade network. | **Provincial-Level MRIO 2017**<br>• Temporal step: $\delta_t = 1/365$<br>• Timeline: `day_total = 365` (days) | Simulates a $40\%$ drop in production capacity (`model.AgentsP_Theta[0] = 0.4`) for the baseline index region from Day 1 to Day 10. |
+| **🚚 Case 3: Logistics Chokepoint**<br>`example_3_BlockageOffTransportationChain.py` | Evaluates trade channels under infrastructure interruptions (e.g., canal obstructions). It invokes `model.transport_obstruct_mrio()` to lock commodities inside transit lines (`AgentsT_P2P`), draining downstream safety buffers (`ndays_target_default = 3.5`). | **Eora26 Global MRIO 2016**<br>• $189$ regions $\times$ $26$ sectors<br>• Open-economy framework<br>• Timeline: `day_total = 365` (days) | Loops through a cross-border logistics schedule (`TransportationLineBlockageData.xlsx`) to programmatically lock trade lanes during specified intervals. |
 
 ---
 
@@ -121,19 +44,19 @@ When you run the standalone workflow above, the core matrix engine dynamically t
 Below is the verified timeline response capturing the system's macroeconomic output fluctuations under targeted regional capacity shocks:
 
 <p align="center">
-  <img src="output/`example_1_plot.png`.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <img src="output/example_1_plot.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
   <br>
   <em>Figure: Value-added recovery and resilience trajectory under Example 1: Resource constraints.</em>
 </p>
 
 <p align="center">
-  <img src="output/`example_2_plot.png`.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <img src="output/example_2_plot.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
   <br>
   <em>Figure: Value-added recovery and resilience trajectory under Example 2: Production capacity reduction.</em>
 </p>
 
 <p align="center">
-  <img src="output/`example_3_plot.png`.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <img src="output/example_3_plot.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
   <br>
   <em>Figure: Value-added recovery and resilience trajectory under Example 3: Transportation blockage.</em>
 </p>
