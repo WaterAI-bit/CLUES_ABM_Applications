@@ -117,20 +117,29 @@ for day in range(1,day_total+1):
     flat_P2C[model.AgentsT_P2C_StartLinInd] = model.AgentsP_ProductOutC.ravel(order='F')[model.k_NetPC]  
     model.AgentsT_P2C = flat_P2C.reshape(model.AgentsT_P2C.shape, order='F')
     
-
+    
     # Transportation line obstruction
+    # Interventions are loaded from 'TransportationLineBlockageData.xlsx'.
+    # Columns: Represent different blocked ships/events.
+    # Rows inside the matrix 'k' are mapped using Python's 0-based indexing:
+    #   k[0]   : Origin region (Row 1: ranking order among 189 EORA countries)
+    #   k[1]   : Destination region (Row 2: ranking order among 189 EORA countries)
+    #   k[2]   : Position_fraction in (0, 1] marking where blockage occurs (Row 3)
+    #   k[3]   : Start day of the blockage (Row 4)
+    #   k[4]   : End day of the blockage (Row 5)
+    #   k[5+i] : Value of delayed goods in the first 11 EORA cargo sectors (Rows 6-16, Unit: 1000 $)
+
     for k in TransportationLineBlockageData.T:
         if day >= k[3] and day <= k[4]:
             for i in range(11):
                 model.transport_obstruct_mrio(
-                    k[0]-1,           # 参数1
-                    k[1]-1,           # 参数2
-                    i,                # 参数3，对应 1~11
-                    k[2],             # 参数4
-                    k[5 + i]          # 参数5，对应 k[6] 到 k[16]
+                    k[0]-1,
+                    k[1]-1,
+                    i,
+                    k[2],
+                    k[5 + i]
                 )
-    
-    
+
     # Calculate products unloaded to each production agent from transportation lines.
     temp2 = model.AgentsP_ProductInP.T.copy()
     flat_temp = temp2.ravel(order='F').copy()
@@ -223,10 +232,10 @@ np.savez("TestResults_BlockageOfTransportationChainExample3.npz",
 )
     
 # ======================= Plot =======================
-# 每天的总 ValueAdded：对代理维度求和（axis=0 表示按行方向）
+# Daily total ValueAdded: sum across the agent dimension (axis=0 indicates row-wise)
 daily_total = np.sum(S0_Evolution_ValueAdded_ProductionAgents, axis=0)
 
-# 绘图
+# Plotting
 plt.figure(figsize=(10, 5))
 plt.plot(range(1, day_total+1), daily_total, marker='o')
 plt.xlabel('Day')

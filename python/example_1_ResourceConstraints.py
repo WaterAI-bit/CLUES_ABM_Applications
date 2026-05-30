@@ -229,10 +229,10 @@ np.savez("output/TestResults_ResourceConstraintsExample1.npz",
 )
 
 # ======================= Plot =======================
-# 每天的总 ValueAdded：对代理维度求和（axis=0 表示按行方向）
+# Daily total ValueAdded: sum across the agent dimension (axis=0 indicates row-wise)
 daily_total = np.sum(S0_Evolution_ValueAdded_ProductionAgents, axis=0)
 
-# 绘图
+# Plotting
 plt.figure(figsize=(10, 5))
 plt.plot(range(1, day_total+1), daily_total, marker='o')
 plt.xlabel('Day')
