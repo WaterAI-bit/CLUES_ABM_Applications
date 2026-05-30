@@ -1,24 +1,8 @@
-# CLUES-ABM Python Implementation Base
+# CLUES-ABM Applications (Python version)
 
-This subdirectory contains the high-performance Python implementation of the **CLUES-ABM** core engine. 
+## 1. Environment Prerequisites & Dataset Setup
 
----
-
-## 📂 Subdirectory Architecture
-
-* **`clues_abm/`**: The standard Python module library.
-  * `WorldOfMatrix_GPU4.py`: Core computational matrix model governing large-system agent communications.
-* **`data/`**: Input file repository.
-  * `MRIOExample.npz`: Sample Multi-Regional Input-Output dataset formatted for tensor bootstrapping.
-* **`output/`**: Execution matrix cache.
-  * `TestResults_ReductionInProductionCapacityExample.npz`: Multi-dimensional simulation state arrays.
-* **`demo.ipynb`**: **[Highly Recommended]** Textbook-style interactive notebook providing complete parameter sweeps and visual charting.
-* **`example_1_basic_run.py`**: A lightweight, headless batch-processing Python script optimized for server side deployments.
-
----
-
-## ⚙️ Dependency & Environment Installation
-
+### 1.1 Prerequisites
 Ensure your local compute environment runs Python $\ge 3.8$. 
 
 To install the foundational matrix and data data science dependencies, execute the following command within this directory:
@@ -27,21 +11,51 @@ To install the foundational matrix and data data science dependencies, execute t
 pip install -r requirements.txt
 ```
 
+### 1.2 Crucial: Dataset Preparation 🚨
+Because the raw City-level and Global MRIO tables exceed GitHub's hosting size limits ($>500\text{ MB}$), users must download the raw source tables independently from official providers (such as CEADs and Eora) and execute our automated preprocessing compiler.
+
+**Please pivot to the [data/ Subdirectory Guide](data/README.md) for step-by-step download instructions and to execute the `data_preprocessing.m` script.** Once compiled, the optimized `.mat` tensor configurations will be instantly ready for scenario testing.
+
+
+### 1.3 Subdirectory Architecture
+
+* **`clues_abm/`**: The standard Python module library.
+  * `WorldOfMatrix_GPU.py`: Core computational matrix model governing large-system agent communications.
+* **`data/`**: Input file repository.
+  * `S2Sa.xlsx`: Binary sector-to-aggregate mapping matrix ($1$ if a micro-sector belongs to an aggregate industry, $0$ otherwise) used to calibrate the Leontief production function. 
+  * `TransportationDays_CountriesInWorld.xlsx`: Transportation days between countries in the world.
+  * `TransportationDays_ProvincesInChina.xlsx`: Transportation days between provinces in China.
+  * `TransportationLineBlockageData.xlsx`: Temporal event manifest driving global supply chain disruptions. Rows 1–5 parameterize the blockage vectors (origin/destination regions, spatial position fraction, and start/end day horizons), while rows 6–16 scale the delayed commodity valuations across sectors.
+  * `WaterVariables.xlsx`: Multi-sheet environmental boundary registry for **Case 1**. The `WaterConstraints_Ratio` sheet defines regional water quota ceiling limits, while the `WaterIntensity` sheet stores sector-level consumption coefficients flattened to direct the micro-agent adaptive production functions.
+* **`example_1_ResourceConstraints.py`**: Empirical validation workflow for **Case 1: Resource Constraints**.
+* **`example_2_ReductionInProductionCapacity.py`**: Empirical validation workflow for **Case 2: Capacity Degradation**.
+* **`example_3_BlockageOffTransportationChain.py`**: Empirical validation workflow for **Case 3: Logistics Chokepoint**.
+* **`example_1_ResourceConstraints.ipynb`**: **[Highly Recommended]** Textbook-style interactive notebook providing complete parameter sweeps and visual charting for **Case 1: Resource Constraints**.
+* **`example_2_ReductionInProductionCapacity.ipynb`**: **[Highly Recommended]** Textbook-style interactive notebook providing complete parameter sweeps and visual charting for **Case 2: Capacity Degradation**.
+* **`example_3_BlockageOffTransportationChain.ipynb`**: **[Highly Recommended]** Textbook-style interactive notebook providing complete parameter sweeps and visual charting for **Case 3: Logistics Chokepoint**.
+
 ---
 
-## 🚀 Execution & Pathway Decoupling
+## 2. Core Simulation Templates (Three Empirical Cases)
 
-To minimize reproduction friction, we provide two distinctive execution pathways tailored for different academic research scenarios:
+The CLUES-ABM architecture provides three standardized validation templates to evaluate distinct economic-environmental structural risk propagation channels. 
 
-* Pathway A: Interactive Exploration via Jupyter Notebook (`demo.ipynb`)
-Highly recommended for Peer Reviewers and exploratory researchers. This notebook breaks down the entire simulation pipeline into atomic cells—ranging from data schema validation, exogenous shock injection, vectorized loop execution, to high-frequency visual charting. It retains pre-rendered output graphics, enabling immediate performance evaluation directly via the GitHub web interface without executing local dependencies.
+| Case & Scenario | Mechanism | Model Configuration | Execution |
+| :--- | :--- | :--- | :--- |
+| **💧 Case 1: Resource Constraints**<br>`example_1_ResourceConstraints.py` | Models localized resource supply bottlenecks (e.g., rigid water quotas). It dynamically scales the `model.ResourceConstraints` vector. Downstream agents face input shocks when regional consumption hits resource intensity (`AgentsP_ResourceIntensity`) ceilings. | **City-Level MRIO 2017**<br>• Temporal step: $\delta_t = 1/52$<br>• Timeline: `day_total = 52` (weeks) | Injecting a severe water scarcity constraint into target regional nodes at Day 1 while keeping baseline periods abundant. |
+| **⚙️ Case 2: Capacity Degradation**<br>`example_2_ReductionInProductionCapacity.py` | Simulates localized physical asset degradation or policy-driven shutdowns. By altering `model.AgentsP_Theta` $\in [0, 1]$, it restricts maximum production capabilities. Over-shocked agents trigger localized supply shortfalls cascading through the trade network. | **Provincial-Level MRIO 2017**<br>• Temporal step: $\delta_t = 1/365$<br>• Timeline: `day_total = 365` (days) | Simulates a $40\%$ drop in production capacity (`model.AgentsP_Theta(1) = 0.4`) for the baseline index region from Day 1 to Day 10. |
+| **🚚 Case 3: Logistics Chokepoint**<br>`example_3_BlockageOffTransportationChain.py` | Evaluates trade channels under infrastructure interruptions (e.g., canal obstructions). It invokes `model.transport_obstruct_mrio()` to lock commodities inside transit lines (`AgentsT_P2P`), draining downstream safety buffers (`ndays_target_default = 3.5`). | **Eora26 Global MRIO 2016**<br>• $189$ regions $\times$ $26$ sectors<br>• Open-economy framework<br>• Timeline: `day_total = 365` (days) | Loops through a cross-border logistics schedule (`TransportationLineBlockageData.xlsx`) to programmatically lock trade lanes during specified intervals. |
 
-* Pathway B: Headless Batch Running via Command Line (`example_1_basic_run.py`)
-Tailored for cluster batch tasks and deep multi-scenario analysis. An un-blocked, lightweight Python script optimized for server-side deployments and High-Performance Computing (HPC) environments. It dumps multi-dimensional tracking metrics (e.g., `S0_Evolution_ValueAdded_Region`) directly into the compressed `.npz` storage in the `output/` folder.
+---
 
->⚠️ Note: Please ensure the output/ directory exists locally before running the headless script.
+## 3. Quick Start & Execution Workflow
 
+Once the benchmarking data matrices are ready in the `data/` folder, you can verify the execution pipeline by running our canonical multi-stage scenario script:
 
-
-
+```python
+# Execute the Python terminal scripts sequentially
+python example_1_ResourceConstraints.py
+python example_2_ReductionInProductionCapacity.py
+python example_3_BlockageOffTransportationChain.py
+```
 
