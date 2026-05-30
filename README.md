@@ -77,3 +77,27 @@ If you adapt these scenario scripts, deploy the input matrices, or build upon th
 
 
 ---
+
+## 5. Expected Simulation Results
+
+When you run the standalone workflow above, the core matrix engine dynamically tracks the multi-regional spatiotemporal cascading losses. The compiled metrics and topological network resilience curves are automatically rendered and archived into the `docs/` directory as `example_1_plot.png`, `example_2_plot.png`, and `example_3_plot.png`.
+
+Below is the verified timeline response capturing the system's macroeconomic output fluctuations under targeted regional capacity shocks:
+
+<p align="center">
+  <img src="docs/example_1_plot.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <br>
+  <em>Figure: Value-added recovery and resilience trajectory under Example 1: Resource constraints.</em>
+</p>
+
+<p align="center">
+  <img src="docs/example_2_plot.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <br>
+  <em>Figure: Value-added recovery and resilience trajectory under Example 2: Production capacity reduction.</em>
+</p>
+
+<p align="center">
+  <img src="docs/example_3_plot.png" alt="CLUES-ABM Simulation Recovery Curve" width="60%"/>
+  <br>
+  <em>Figure: Value-added recovery and resilience trajectory under Example 3: Transportation blockage.</em>
+</p>
