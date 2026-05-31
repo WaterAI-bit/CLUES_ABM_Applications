@@ -6,12 +6,12 @@ clear; clc; close all
 tic % Start timing.
 
 % Load MRIO data.
-load('CityLevelMRIO2017.mat');
+load('data/CityLevelMRIO2017.mat');
 
 % Load water intensity and water resource data.
 % Please load data from the disk!
-WaterConstraints_Ratio=readmatrix("WaterVariables.xlsx","Sheet","WaterConstraints_Ratio");
-WaterIntensity=readmatrix("WaterVariables.xlsx","Sheet","WaterIntensity");
+WaterConstraints_Ratio=readmatrix("data/WaterVariables.xlsx","Sheet","WaterConstraints_Ratio");
+WaterIntensity=readmatrix("data/WaterVariables.xlsx","Sheet","WaterIntensity");
 
 % Load periods for transportion between regions (integers, at least 1).
 % NO NEED FOR WEEKLY SIMULATION FOR CHINA!
@@ -28,7 +28,7 @@ WaterIntensity=readmatrix("WaterVariables.xlsx","Sheet","WaterIntensity");
 ... WorldOfMatrix_GPU will be the same as WorldOfMatrix_Water, but the speed will be a little faster.
 ... Experiments show that when inventories are small, aggregation will reduce losses;
 ... otherwise using aggregation will slightly increase losses.
-S2Sa = readmatrix('S2Sa.xlsx', 'Sheet', 'S2Sa_Identical');
+S2Sa = readmatrix('data/S2Sa.xlsx', 'Sheet', 'S2Sa_Identical');
 
 MATLAB_RUNTIME_0_Load = toc; % End timing.
 
@@ -56,10 +56,10 @@ MRIO_Dist = MRIO_Dist - 1;
 
 % Water required for unitary output of each production agent (i.e., region-sector):
 % Note: At least 1 water intensity should be nonzero to avoid computational error.
-AgentsP_WaterIntensity = WaterIntensity;
+AgentsP_ResourceIntensity = WaterIntensity;
 
 %% Define China's economy and initialize the model.
-ChinaEcon = WorldOfMatrix_GPU; % China's economy is our World.
+ChinaEcon = clues_abm.WorldOfMatrix_GPU; % China's economy is our World.
 
 % Basic Input-Output variables.
 ChinaEcon.MRIO_R = 313; % Number of regions (cities).
@@ -85,7 +85,7 @@ ChinaEcon.ndays_Target_Default = ndays_Target_Default;
 % Distance (i.e., steps in the transportation line) between regions.
 ChinaEcon.MRIO_Dist = MRIO_Dist;
 % Water required for unitary output of each production agent.
-ChinaEcon.AgentsP_WaterIntensity = AgentsP_WaterIntensity;
+ChinaEcon.AgentsP_ResourceIntensity = AgentsP_ResourceIntensity;
 % A conversion matrix, each row is a product and each column is an aggregate product. 
 % The value is 1 if the column is aggregate product for the row product, otherwise is 0.
 ChinaEcon.S2Sa = S2Sa; % Use the imported conversion matrix.
@@ -137,31 +137,31 @@ S0_Evolution_Scarcity_RegionsProducts = zeros(ChinaEcon.MRIO_R,ChinaEcon.Sa,day_
 tic % Start timing
 
 for day=1:day_total % Days for simulation. 
-    % To simulate the impact of losses in production capacities:
-    % We can revise the property obj.AgentsP_Theta of the WorldOfMatrix_GPU object:
-    % obj.N_P * 1: Reduction in production capacity relative to pre-event level, in [0,1].
-%     if day==1 % For example, production capacity loss in the fist period:
-%         ChinaEcon.AgentsP_Theta(1) = 0.4;
-%     else % After that:
-%         ChinaEcon.AgentsP_Theta(1) = 0;
-%     end
-
-    % To simulate the impact of resource constraints:
-    % We can revise the property obj.WaterConstraints of the WorldOfMatrix_Water object:
-    % obj.MRIO_R*1 vector: Water constraints for each MRIO region, FOR THE CURRENT SIMULATION PERIOD.
-  
-    % Setting up regions where water scarcity occurs:
-    % In this example, only one region was set to have water resource restrictions; 
-    % Multiple regions can be simultaneously set to generate water resource restrictions, such as Regions_WaterScarcity=[2,3,4,6,7,8];
-       Regions_WaterScarcity=2;
+    % ----This part calculates the impact of resource constraints:----
+    % We can revise the property obj.ResourceConstraints of the WorldOfMatrix_Water object:
+    ...obj.MRIO_R*1 vector: Resource constraints for each MRIO region, FOR THE CURRENT SIMULATION PERIOD.
+    % Setting up regions where resource scarcity occurs:
+    ...In this example, only one region was set to have water resource restrictions; 
+    ...Multiple regions can be simultaneously set to generate water resource restrictions, such as Regions_WaterScarcity=[2,3,4,6,7,8];
+    
+    Regions_WaterScarcity=2;
     if day==1 % For example, in the first period, water scarcity occurs:
         WaterConstraints_RatioInput=ones(313,1);
         WaterConstraints_RatioInput(Regions_WaterScarcity)=WaterConstraints_Ratio(Regions_WaterScarcity);
-        ChinaEcon.WaterConstraints = ChinaEcon.WaterConstraints.* WaterConstraints_RatioInput;
+        ChinaEcon.ResourceConstraints = ChinaEcon.ResourceConstraints.* WaterConstraints_RatioInput;
     else % Very abundant water. PLEASE USE THIS IN EACH SIMULATION PERIOD IS THERE IS NO WATER CONSTRAINT!
-        ChinaEcon.WaterConstraints = ones(size(ChinaEcon.WaterConstraints)) * (sum(ChinaEcon.AgentsP_SS_Xcap) * 10 + 1e10);
+        ChinaEcon.ResourceConstraints = ones(size(ChinaEcon.ResourceConstraints)) * (sum(ChinaEcon.AgentsP_SS_Xcap) * 10 + 1e10);
     end
-    %% This part calculates movements in transportation lines.
+    
+    % ----This part calculates the impact of losses in production capacity:----
+    % We can revise the property obj.AgentsP_Theta of the WorldOfMatrix_GPU object:
+    ...obj.N_P * 1: Reduction in production capacity relative to pre-event level, in [0,1].
+    
+%     if (day>=1) && (day<=10) % For example, production capacity loss in the fist period:
+%         ChinaEcon.AgentsP_Theta(1) = 0.4;  %The production capacity of the first sector in the first region decreased by 40%
+%     end
+    
+    % ----This part calculates movements in transportation lines.----
     % DON'T REVISE THIS SECTION IF THERE IS NO TRANSPORTATION LINE OBSTRUCTION.
 
     % Tranportation lines:
@@ -245,16 +245,14 @@ S0_LossPerc_Cities(ind) = 100 * (SS_Cities_VA(ind)-mean(S0_Evolution_ValueAdded_
 S0_ProductInNetwork_Cities_Change_Mean = mean(S0_ProductInNetwork_Cities_Change,3);
 
 %% Saving.
-%save('TestResults_ResourceConstraints.mat','S0_Evolution_ValueAdded_ProductionAgents', 'S0_Evolution_ValueAdded_Cities', ...
-%    'S0_ProductInNetwork_Cities', 'S0_ProductInNetwork_Cities_Change', 'S0_ProductInNetwork_Cities_Change_Mean', ...
-%    'S0_LossPerc_ProductionAgents', 'S0_LossPerc_Cities', ...
-%    'S0_Evolution_Scarcity_RegionsProducts', ...
-%    'SS_AgentsP_VA', 'SS_Cities_VA', 'SS_ProductInNetwork_Cities', ...
-%    'RegionSectors2Regions')
+save('TestResults_ResourceConstraintsExample1.mat','S0_Evolution_ValueAdded_ProductionAgents', 'S0_Evolution_ValueAdded_Cities', ...
+   'S0_ProductInNetwork_Cities', 'S0_ProductInNetwork_Cities_Change', 'S0_ProductInNetwork_Cities_Change_Mean', ...
+   'S0_LossPerc_ProductionAgents', 'S0_LossPerc_Cities', ...
+   'S0_Evolution_Scarcity_RegionsProducts', ...
+   'SS_AgentsP_VA', 'SS_Cities_VA', 'SS_ProductInNetwork_Cities', ...
+   'RegionSectors2Regions')
 
 %% Plot the evoluton of values added of all production agents.
 % figure
-% plot(S0_Evolution_ValueAdded_ProductionAgents')
-load('TestResults_ResourceConstraints.mat')
 col_sum = sum(S0_Evolution_ValueAdded_ProductionAgents, 1);
 plot(col_sum);
